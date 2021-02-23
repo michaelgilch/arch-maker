@@ -4,7 +4,7 @@ readonly TARGET="/mnt"
 readonly PRIMARY_USER="michael"
 readonly HOST_NAME="DaVinci"
 
-readonly MIRRORLIST_URL="https://www.archlinux.org/mirrorlist/?country=US&protocol=https"
+readonly MIRRORLIST_URL="https://archlinux.org/mirrorlist/?country=US&protocol=https&ip_version=4&use_mirror_status=on"
 readonly MIRRORLIST_TEMP_FILE="/tmp/mirrorlist"
 readonly MIRRORLIST_FINAL_FILE="/etc/pacman.d/mirrorlist"
 
