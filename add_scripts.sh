@@ -3,4 +3,4 @@
 # Add custom installation scripts to ISO
 
 
-cp -R --preserve=mode scripts/* build/releng/airootfs/root/
+cp -R scripts/* build/releng/airootfs/root/
