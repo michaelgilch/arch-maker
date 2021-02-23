@@ -5,7 +5,7 @@
 DEPENDENCY_PACKAGES_NEEDED=""
 
 function check_dependency() {
-    check="$pacman -Q "$1" 2>/dev/null)"
+    check="$(pacman -Q "$1" 2>/dev/null)"
     if [ -z "${check}" ]; then
         DEPENDENCY_PACKAGES_NEEDED+=${1}" "
     fi
@@ -18,6 +18,8 @@ check_dependency archiso
 # for testing
 check_dependency qemu
 check_dependency edk2-ovmf
+
+echo $DEPENDENCY_PACKAGES_NEEDED
 
 if [ -n "${DEPENDENCY_PACKAGES_NEEDED}" ]; then
     echo "The following dependencies are missing:"
