@@ -138,6 +138,11 @@ function add_user() {
     sed -i "/%wheel ALL=(ALL) ALL/s/^# //" "$TARGET"/etc/sudoers
 }
 
+function copy_scripts() {
+    cp  post-install.sh /mnt/home/"$PRIMARY_USER"
+    cp -r post-install /mnt/home/"$PRIMARY_USER"
+}
+
 verify_network
 set_is_virtualbox
 set_is_intel_cpu
@@ -155,5 +160,6 @@ configure_initcpio
 set_root_password
 get_primary_user
 add_user
+copy_scripts
 
 printf "\nBase installation complete."
