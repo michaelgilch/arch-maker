@@ -88,7 +88,7 @@ else
     git pull
 fi
 gpg --recv-key D1742AD60D811D58
-makepkg -si
+makepkg -si --noconfirm
 popd || exit
 
 #
@@ -101,7 +101,7 @@ else
     pushd slack-desktop || exit
     git pull
 fi
-makepkg -si
+makepkg -si --noconfirm
 popd || exit
 
 # 
@@ -114,7 +114,7 @@ else
     pushd h2 || exit
     git pull
 fi
-makepkg -si
+makepkg -si --noconfirm
 popd || exit
 
 # INSERT NEW HERE
