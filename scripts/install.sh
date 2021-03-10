@@ -14,7 +14,7 @@ readonly TIME_ZONE="America/New_York"
 IS_VIRTUALBOX=""
 IS_INTEL_CPU=""
 
-source ./base_packages.conf
+source base_packages.conf
 
 function chr() {
     arch-chroot "$TARGET" "$@"
@@ -112,29 +112,31 @@ function configure_initcpio() {
     chr mkinitcpio -p linux
 }
 
-function set_root_password() {
-    echo "Setting root password..."
+function set_password() {
+    USER=$1
     match=false
     while [ "$match" == false ]; do
-        read -r -p "Enter root password: " -s root_pw_1
+        read -r -p "Enter password for $USER: " -s pw_1
         echo
-        read -r -p "Enter root password, again: " -s root_pw_2
+        read -r -p "Enter password for $USER, again: " -s pw_2
         echo
-        if [[ "$root_pw_1" != "$root_pw_2" ]]; then
+        if [[ "$pw_1" != "$pw_2" ]]; then
             echo "Passwords do not match."
         else
             match=true
         fi
     done
-    chr sh -c "echo 'root:$root_pw_1' | chpasswd"
+    chr sh -c "echo '$USER:$pw_1' | chpasswd"
+}
+
+function set_root_password() {
+    set_password root
 }
 
 function add_user() {
     printf "\nAdding user %s...\n" "$PRIMARY_USER"
     chr useradd -m -G wheel -s /bin/bash "$PRIMARY_USER"
-    printf "Password for %s: " "$PRIMARY_USER"
-    read -r -s user_pw
-    chr sh -c "echo '$PRIMARY_USER:$user_pw' | chpasswd"
+    set_password "$PRIMARY_USER"
     sed -i "/%wheel ALL=(ALL) ALL/s/^# //" "$TARGET"/etc/sudoers
 }
 
