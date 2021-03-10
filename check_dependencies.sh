@@ -2,6 +2,9 @@
 
 # Verify dependences need for custom archiso build process are satisfied.
 
+# The following shellcheck directive is only to disable line 31's pacman call
+# shellcheck disable=SC2086
+
 DEPENDENCY_PACKAGES_NEEDED=""
 
 function check_dependency() {
@@ -19,7 +22,7 @@ check_dependency archiso
 check_dependency qemu
 check_dependency edk2-ovmf
 
-echo $DEPENDENCY_PACKAGES_NEEDED
+echo "$DEPENDENCY_PACKAGES_NEEDED"
 
 if [ -n "${DEPENDENCY_PACKAGES_NEEDED}" ]; then
     echo "The following dependencies are missing:"
