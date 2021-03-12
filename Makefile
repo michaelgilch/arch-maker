@@ -1,6 +1,6 @@
 # Makefile for building archiso
 
-all: lint clean depends profile scripts packages permissions iso
+all: clean depends profile scripts packages permissions iso
 
 lint:
 	shellcheck -s bash $(wildcard ./*.sh) \
@@ -18,7 +18,7 @@ depends:
 profile:
 	./copy_profile.sh
 
-scripts:
+files:
 	./add_scripts.sh
 
 packages:
