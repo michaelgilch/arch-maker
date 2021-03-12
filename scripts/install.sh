@@ -1,50 +1,13 @@
 #!/bin/bash
+#
+# Main installation script for customized ArchLinux.
+#
+# The main body is modeled after the ArchLinux Installation Guide
+# found at https://wiki.archlinux.org/index.php/Installation_guide.
 
-readonly TARGET="/mnt"
-readonly PRIMARY_USER="michael"
-readonly HOST_NAME="DaVinci"
-
-readonly MIRRORLIST_URL="https://archlinux.org/mirrorlist/?country=US&protocol=https&ip_version=4&use_mirror_status=on"
-readonly MIRRORLIST_TEMP_FILE="/tmp/mirrorlist"
-readonly MIRRORLIST_FINAL_FILE="/etc/pacman.d/mirrorlist"
-
-readonly LOCALE="en_US.UTF-8"
-readonly TIME_ZONE="America/New_York"
-
-IS_VIRTUALBOX=""
-IS_INTEL_CPU=""
-
-source base_packages.conf
-
-function chr() {
-    arch-chroot "$TARGET" "$@"
-}
-
-function set_is_virtualbox() {
-    if [ -n "$(lspci | grep -i virtualbox)" ]; then
-        IS_VIRTUALBOX="true"
-    fi
-}
-
-function set_is_intel_cpu() {
-    if [ -n "$(lscpu | grep GenuineIntel)" ]; then
-        IS_INTEL_CPU="true"
-    fi
-}
-
-function get_hostname() {
-    if [ "$HOST_NAME" == "" ]; then
-        read -r -p "Enter Hostname: " HOST_NAME
-        echo
-    fi
-}
-
-function get_primary_user() {
-    if [ "$PRIMARY_USER" == "" ]; then
-        read -r -p "Enter Primary User Name: " PRIMARY_USER
-        echo
-    fi
-}
+source config.sh
+source common.sh
+source base_packages.sh
 
 function verify_network() {
     echo "Verifying network connectivity..."
@@ -60,15 +23,17 @@ function set_system_clock() {
 }
 
 function update_mirrorlist() {
+    local temp_file="/tmp/mirrorlist"
+    local final_file="/etc/pacman.d/mirrorlist"
     echo "Updating mirrorlist..."
-    curl -s "$MIRRORLIST_URL" > "$MIRRORLIST_TEMP_FILE"
-    sed -i 's/#//' "$MIRRORLIST_TEMP_FILE"
-    rankmirrors "$MIRRORLIST_TEMP_FILE" > "$MIRRORLIST_FINAL_FILE"
+    curl -s "$MIRRORLIST_URL" > "$temp_file"
+    sed -i 's/#//' "$temp_file"
+    rankmirrors "$temp_file" > "$final_file"
 }
 
 function pacstrap_system() {
     echo "Installing packages..."
-    pacstrap "$TARGET" $(echo "$PACKAGES")    
+    pacstrap "$TARGET" $(echo "$PACKAGES")
 }
 
 function generate_fstab() {
@@ -113,31 +78,22 @@ function configure_initcpio() {
 }
 
 function set_password() {
-    USER=$1
-    match=false
-    while [ "$match" == false ]; do
-        read -r -p "Enter password for $USER: " -s pw_1
-        echo
-        read -r -p "Enter password for $USER, again: " -s pw_2
-        echo
-        if [[ "$pw_1" != "$pw_2" ]]; then
-            echo "Passwords do not match."
-        else
-            match=true
-        fi
-    done
-    chr sh -c "echo '$USER:$pw_1' | chpasswd"
+    local user="$1"
+    local pw="$2"
+    chr sh -c "echo '$user:$pw' | chpasswd"
 }
 
 function set_root_password() {
-    set_password root
+    set_password root "$ROOT_PASSWORD"
 }
 
 function add_user() {
-    printf "\nAdding user %s...\n" "$PRIMARY_USER"
-    chr useradd -m -G wheel -s /bin/bash "$PRIMARY_USER"
-    set_password "$PRIMARY_USER"
-    sed -i "/%wheel ALL=(ALL) ALL/s/^# //" "$TARGET"/etc/sudoers
+    if [ "$PRIMARY_USER" != "" ]; then
+        printf "\nAdding user %s...\n" "$PRIMARY_USER"
+        chr useradd -m -G wheel -s /bin/bash "$PRIMARY_USER"
+        set_password "$PRIMARY_USER" "$PRIMARY_USER_PASSWORD"
+        sed -i "/%wheel ALL=(ALL) ALL/s/^# //" "$TARGET"/etc/sudoers
+    fi
 }
 
 function copy_scripts() {
@@ -145,9 +101,11 @@ function copy_scripts() {
     cp -r post-install /mnt/home/"$PRIMARY_USER"
 }
 
+function enable_services() {
+    chr systemctl enable lxdm.service
+}
+
 verify_network
-set_is_virtualbox
-set_is_intel_cpu
 set_system_clock
 update_mirrorlist
 pacstrap_system
@@ -156,12 +114,11 @@ set_timezone
 set_locale
 enable_network
 configure_bootloader
-get_hostname
 set_hostname
 configure_initcpio
 set_root_password
-get_primary_user
 add_user
 copy_scripts
+enable_services
 
 printf "\nBase installation complete."
