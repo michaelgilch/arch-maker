@@ -18,7 +18,7 @@ readonly TIME_ZONE="America/New_York"
 # Packages called out by Archlinux Wiki Installation Guide
 PACKAGES="base linux linux-firmware"
 # Besides the above "required" packages, I also like to have the following installed on every box.
-PACKAGES+="base-devel grub os-prober dhcpcd vim"
+PACKAGES+=" base-devel grub os-prober dhcpcd vim"
 
 #------------------------------------------------------------------------------
 #
@@ -62,10 +62,10 @@ function get_password() {
         echo
         read -r -p "Enter password for $user, again: " -s PW_2
         echo
-        if [[ "$PW_1" != "$PW_2" ]]; then
-            echo "ERROR: Passwords do not match."
-        else
+        if [[ "$PW_1" == "$PW_2" ]]; then
             match=true
+        else
+            echo "ERROR: Passwords do not match. Please try again."
         fi
     done
     echo "-> $user Password set."
@@ -86,7 +86,8 @@ function get_primary_user() {
 }
 
 function get_primary_user_password() {
-    if [ "$PRIMARY_USER" != "" && "$PRIMARY_USER_PASSWORD" == "" ]; then
+    if [ "$PRIMARY_USER" != "" ]; then
+        if [ "$PRIMARY_USER_PASSWORD" == "" ]; then
             get_password "$PRIMARY_USER"
             PRIMARY_USER_PASSWORD="$PW_1"
         fi
@@ -123,6 +124,13 @@ function get_is_nvidia_graphics() {
     echo "-> NVIDIA Graphics set to '$IS_NVIDIA_GRAPHICS'"
 }
 
+function get_custom_packages() {
+    if [ -f "packages_${HOST_NAME,,}.sh" ]; then
+        echo "-> Found custom package list for ${HOST_NAME}"
+        source packages_"${HOST_NAME,,}".sh
+    fi
+}
+
 echo "Collecting configuration information..."
 
 get_hostname
@@ -132,3 +140,4 @@ get_primary_user_password
 get_is_virtualbox
 get_is_intel_cpu
 get_is_nvidia_graphics
+get_custom_packages

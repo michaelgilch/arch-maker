@@ -7,11 +7,10 @@
 
 source config.sh
 source common.sh
-source base_packages.sh
 
 function verify_network() {
     echo "Verifying network connectivity..."
-    if ! ping -q -c 1 -W 1 google.com >/dev/null; then
+    if ! ping -q -c 1 -W 1 "$PING_HOSTNAME" >/dev/null; then
         echo "ERROR: Network connection not available."
         exit 1
     fi
@@ -118,7 +117,7 @@ set_hostname
 configure_initcpio
 set_root_password
 add_user
-copy_scripts
-enable_services
+#copy_scripts
+#enable_services
 
 printf "\nBase installation complete."
