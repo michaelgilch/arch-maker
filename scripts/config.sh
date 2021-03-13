@@ -1,8 +1,44 @@
 #!/bin/bash
 #
-# Queries variables.sh, user, and hardware for configuration information.
+# Global variables and functions to obtain configuration information.
 
-source variables.sh
+#------------------------------------------------------------------------------
+#
+# The following must be set prior to running install.
+#
+#------------------------------------------------------------------------------
+readonly TARGET="/mnt"
+readonly MIRRORLIST_URL="https://archlinux.org/mirrorlist/?country=US&protocol=https&ip_version=4&use_mirror_status=on"
+readonly PING_HOSTNAME="google.com"
+
+# TODO: Move locale and timezone settings to prompt system
+readonly LOCALE="en_US.UTF-8"
+readonly TIME_ZONE="America/New_York"
+
+# Packages called out by Archlinux Wiki Installation Guide
+PACKAGES="base linux linux-firmware"
+# Besides the above "required" packages, I also like to have the following installed on every box.
+PACKAGES+="base-devel grub os-prober dhcpcd vim"
+
+#------------------------------------------------------------------------------
+#
+# The following, if left blank, will present prompts during install.
+#
+#------------------------------------------------------------------------------
+HOST_NAME=""
+PRIMARY_USER=""
+
+#------------------------------------------------------------------------------
+#
+# The following should typically be left blank and will either 
+# present prompts to the user or determined during installation.
+#
+#------------------------------------------------------------------------------
+ROOT_PASSWORD=""
+PRIMARY_USER_PASSWORD=""
+IS_VIRTUALBOX=""
+IS_INTEL_CPU=""
+IS_NVIDIA_GRAPHICS=""
 
 function get_hostname() {
     if [ "$HOST_NAME" == "" ]; then
