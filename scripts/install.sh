@@ -5,8 +5,13 @@
 # The main body is modeled after the ArchLinux Installation Guide
 # found at https://wiki.archlinux.org/index.php/Installation_guide.
 
-source config.sh
 source common.sh
+
+function load_config() {
+    echo "Loading $1"
+    source $1
+    source config.sh
+}
 
 function verify_network() {
     echo "Verifying network connectivity..."
@@ -83,14 +88,14 @@ function set_password() {
 }
 
 function set_root_password() {
-    set_password root "$ROOT_PASSWORD"
+    set_password root "$ROOT_PW"
 }
 
 function add_user() {
     if [ "$PRIMARY_USER" != "" ]; then
         printf "\nAdding user %s...\n" "$PRIMARY_USER"
         chr useradd -m -G wheel -s /bin/bash "$PRIMARY_USER"
-        set_password "$PRIMARY_USER" "$PRIMARY_USER_PASSWORD"
+        set_password "$PRIMARY_USER" "$PRIMARY_USER_PW"
         sed -i "/%wheel ALL=(ALL) ALL/s/^# //" "$TARGET"/etc/sudoers
     fi
 }
@@ -103,6 +108,20 @@ function copy_scripts() {
 function enable_services() {
     chr systemctl enable lxdm.service
 }
+
+init_log
+
+if [ $# == 1 ]; then
+    CONF_FILE="configs/${1,,}.conf"
+    if [ -f "$CONF_FILE" ]; then
+        load_config "$CONF_FILE"
+    else
+        echo "Configuration for $1 cannot be found. Exiting"
+        exit 1
+    fi
+else
+    load_config "configs/default.conf"
+fi
 
 verify_network
 set_system_clock
@@ -117,7 +136,8 @@ set_hostname
 configure_initcpio
 set_root_password
 add_user
-#copy_scripts
+
+##copy_scripts
 #enable_services
 
 printf "\nBase installation complete."
