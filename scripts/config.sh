@@ -1,12 +1,6 @@
 #!/bin/bash
 #
-# Global variables and functions to obtain configuration information.
-
-# # Packages called out by Archlinux Wiki Installation Guide
-# PACKAGES="base linux linux-firmware"
-# # Besides the above "required" packages, I also like to have the following installed on every box.
-# PACKAGES+=" base-devel grub os-prober dhcpcd vim"
-
+# Library used to obtain information from the user and hardware for the installation.
 
 function get_hostname() {
     if [ "$HOST_NAME" == "" ]; then

@@ -2,8 +2,10 @@
 #
 # Main installation script for customized ArchLinux.
 #
-# The main body is modeled after the ArchLinux Installation Guide
-# found at https://wiki.archlinux.org/index.php/Installation_guide.
+# This piece of the installation is modeled after the ArchLinux Installation
+# Guide found at https://wiki.archlinux.org/index.php/Installation_guide.
+# Following this script, customize.sh will be called to perform more fine-tuned
+# customizations, installation of aur packages, sdkman, dotfiles, etc.
 
 source common.sh
 
@@ -11,6 +13,33 @@ function load_config() {
     echo "Loading $1"
     source $1
     source config.sh
+}
+
+function setup_partitions() {
+    mkfs.ext4 "$ROOT_PARTITION"
+    mount "$ROOT_PARTITION" "$TARGET"
+
+    for P in ${FORMAT_PARTITIONS[@]}; do
+        IFS='|' S=(${P}) 
+        PARTITION=${S[0]}
+        MOUNT_POINT=${S[1]}
+        FORMAT=${S[2]}
+        
+        mkfs."$FORMAT" "$PARTITION"
+        mkdir -p "$MOUNT_POINT"
+        mount "$PARTITION" "$MOUNT_POINT"
+        IFS=' '
+    done
+
+    for P in ${MOUNT_PARTITIONS[@]}; do
+        IFS='|' S=(${P})
+        PARTITION=${S[0]}
+        MOUNT_POINT=${S[1]}
+
+        mkdir -p "$MOUNT_POINT"
+        mount "$PARTITION" "$MOUNT_POINT"
+        IFS=' '
+    done
 }
 
 function verify_network() {
@@ -67,7 +96,7 @@ function configure_bootloader() {
     if [ "$IS_INTEL_CPU" == "true" -a "$IS_VIRTUALBOX" != "true" ]; then
         chr pacman -S intel-ucode --noconfirm
     fi
-    chr grub-install /dev/sdd
+    chr grub-install --target=i386-pc --recheck "$BOOT_DISK"
     chr grub-mkconfig -o /boot/grub/grub.cfg
 }
 
@@ -100,6 +129,12 @@ function add_user() {
     fi
 }
 
+function run_customizations() {
+    if [ $CUSTOMIZE == "true" ]; then
+        ./customize.sh "$1"
+    fi
+}
+
 function copy_scripts() {
     cp  post-install.sh /mnt/home/"$PRIMARY_USER"
     cp -r post-install /mnt/home/"$PRIMARY_USER"
@@ -114,6 +149,7 @@ init_log
 if [ $# == 1 ]; then
     CONF_FILE="configs/${1,,}.conf"
     if [ -f "$CONF_FILE" ]; then
+        CUSTOMIZE='true'
         load_config "$CONF_FILE"
     else
         echo "Configuration for $1 cannot be found. Exiting"
@@ -123,6 +159,7 @@ else
     load_config "configs/default.conf"
 fi
 
+setup_partitions
 verify_network
 set_system_clock
 update_mirrorlist
@@ -136,6 +173,10 @@ set_hostname
 configure_initcpio
 set_root_password
 add_user
+
+if [ "$CUSTOMIZE" == 'true' ]; then
+    run_customizations "$CONF_FILE"
+fi
 
 ##copy_scripts
 #enable_services
