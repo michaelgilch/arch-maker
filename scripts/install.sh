@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Main installation script for customized ArchLinux.
+# Entry Point of scripts for customized ArchLinux installation.
 #
 # This piece of the installation is modeled after the ArchLinux Installation
 # Guide found at https://wiki.archlinux.org/index.php/Installation_guide.
@@ -9,12 +9,48 @@
 
 source common.sh
 
+function usage() {
+    echo "TODO: Put Usage Info Here"
+}
+
+#---------------------------------------
+# Loads a configuration file passed to the script or the default configuration
+# Globals: 
+#   CONF_FILE
+#   CUSTOMIZE
+# Arguments:
+#   [optional] Configuration name
+#---------------------------------------
 function load_config() {
-    echo "Loading $1"
-    source $1
+    if [ $# == 1 ]; then
+        CONF_FILE="configs/${1,,}.conf"
+
+        if [ -f "$CONF_FILE" ]; then
+            echo "Sourcing configuration file '$CONF_FILE'"
+            CUSTOMIZE='true'
+            source "$CONF_FILE"
+        else
+            echo "Configuration file $CONF_FILE cannot be found. Exiting"
+            usage
+            exit 1    
+        fi
+    else
+        echo "Sourcing default configuration at 'configs/default.conf'"
+        CUSTOMIZE='false'
+        source "configs/default.conf"
+    fi
+
     source config.sh
 }
 
+#---------------------------------------
+# Formats and mounts partitions needed for installation
+# Globals:
+#   ROOT_PARTITION
+#   TARGET
+#   FORMAT_PARITIONS
+#   MOUNT_PARITIONS
+#---------------------------------------
 function setup_partitions() {
     mkfs.ext4 "$ROOT_PARTITION"
     mount "$ROOT_PARTITION" "$TARGET"
@@ -132,17 +168,11 @@ function add_user() {
 init_log 
 
 if [ $# == 1 ]; then
-    CONF_FILE="configs/${1,,}.conf"
-    if [ -f "$CONF_FILE" ]; then
-        CUSTOMIZE='true'
-        load_config "$CONF_FILE"
-    else
-        echo "Configuration for $1 cannot be found. Exiting"
-        exit 1
-    fi
+    load_config $1
 else
-    load_config "configs/default.conf"
+    load_config
 fi
+
 
 setup_partitions
 verify_network
