@@ -11,6 +11,30 @@
 # prompt and/or hardware probe, preventing the latter from occuring.
 
 #---------------------------------------
+# Prompts user for locale if it does not exist in config file.
+# Globals:
+#   LOCALE
+#---------------------------------------
+function get_locale() {
+    if [ "$LOCALE" == "" ]; then
+        read -r -p "Locale (eg: 'en_US.UTF-8'): " LOCALE
+    fi
+    echo "-> Locale set to '$LOCALE'"
+}
+
+#---------------------------------------
+# Prompts user for timezone if it does not exist in config file.
+# Globals:
+#   TIMEZONE
+#---------------------------------------
+function get_timezone() {
+    if [ "$TIMEZONE" == "" ]; then
+        read -r -p "Timezone (eg: 'America/New_York'): " TIMEZONE
+    fi
+    echo "-> Timezone set to '$TIMEZONE'"
+}
+
+#---------------------------------------
 # Prompts user for hostname if it does not exist in configuration file.
 # Globals:
 #   HOST_NAME
@@ -135,10 +159,11 @@ function get_is_nvidia_graphics() {
 echo "Collecting configuration information..."
 
 get_hostname
+get_locale
+get_timezone
 get_root_password
 get_primary_user
 get_primary_user_password
 get_is_virtualbox
 get_is_intel_cpu
 get_is_nvidia_graphics
-get_custom_packages
