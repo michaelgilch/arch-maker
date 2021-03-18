@@ -31,6 +31,14 @@ function setup_lxdm() {
     }
 }
 
+function setup_network() {
+    is_installed networkmanager && {
+        echo "Disabling dhcpcd and enabling NetworkManager service"
+        servicectl disable dhcpcd
+        servicectl enable NetworkManager.service
+    }
+}
+
 function setup_aur_pkgs() {
     mkdir -p ~/.aur
 
@@ -44,5 +52,6 @@ function setup_aur_pkgs() {
 
 
 install_pkgs
+setup_network
 setup_aur_pkgs
 setup_desktop_environment
