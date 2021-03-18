@@ -129,21 +129,6 @@ function add_user() {
     fi
 }
 
-function run_customizations() {
-    if [ $CUSTOMIZE == "true" ]; then
-        ./customize.sh "$1"
-    fi
-}
-
-function copy_scripts() {
-    cp  post-install.sh /mnt/home/"$PRIMARY_USER"
-    cp -r post-install /mnt/home/"$PRIMARY_USER"
-}
-
-function enable_services() {
-    chr systemctl enable lxdm.service
-}
-
 init_log
 
 if [ $# == 1 ]; then
@@ -175,10 +160,19 @@ set_root_password
 add_user
 
 if [ "$CUSTOMIZE" == 'true' ]; then
-    run_customizations "$CONF_FILE"
+    # Temporarily disable sudo password
+    sed -i 's/^%wheel ALL=(ALL) ALL$/%wheel ALL=(ALL) NOPASSWD: ALL/' /mnt/etc/sudoers
+
+    # Copy scripts
+    mkdir -p /mnt/home/"$PRIMARY_USER"/.install_scripts/
+    cp customize.sh /mnt/home/"$PRIMARY_USER"/.install_scripts/
+    cp -R configs /mnt/home/"$PRIMARY_USER"/.install_scripts/
+
+    # Run customization script
+    chr /bin/bash -c "su $PRIMARY_USER -l -s -c \"./.install_scripts/customize.sh .install_scripts/$CONF_FILE\""
+
+    # Re-enable sudo password
+    sed -i 's/^%wheel ALL=(ALL) NOPASSWD: ALL$/%wheel ALL=(ALL) ALL/' /mnt/etc/sudoers
 fi
 
-##copy_scripts
-#enable_services
-
-printf "\nBase installation complete."
+printf "\nInstallation complete."

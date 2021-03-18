@@ -18,6 +18,9 @@ function chr() {
     arch-chroot "$TARGET" "$@"
 }
 
+#---------------------------------------
+# Initializes Logging of Installation
+#---------------------------------------
 function init_log() {
     exec > >(tee -a $LOG_FILE)
     exec 2> >(tee -a $LOG_FILE >&2)
@@ -33,5 +36,5 @@ function init_log() {
 #   Package to check
 #---------------------------------------
 function is_installed() {
-    chr pacman -Q $1 >/dev/null 2>&1
+    pacman -Q $1 >/dev/null 2>&1
 }
