@@ -2,6 +2,8 @@
 #
 # Library used to obtain information from the user and hardware for the installation.
 
+BASE_PKGS="base linux linux-firmware"
+
 function get_hostname() {
     if [ "$HOST_NAME" == "" ]; then
         read -r -p "Hostname: " HOST_NAME

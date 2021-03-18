@@ -65,8 +65,11 @@ function update_mirrorlist() {
 }
 
 function pacstrap_system() {
-    echo "Installing packages..."
-    pacstrap "$TARGET" $(echo "$PACKAGES")
+    if [ "$IS_INTEL_CPU" == "true" && "$IS_VIRTUALBOX" != "true" ]; then
+        BASE_PKGS+=" intel-ucode"
+    fi
+    echo "Installing packages..." 
+    pacstrap "$TARGET" $(echo "$BASE_PKGS")
 }
 
 function generate_fstab() {
@@ -93,9 +96,6 @@ function enable_network() {
 }
 
 function configure_bootloader() {
-    if [ "$IS_INTEL_CPU" == "true" -a "$IS_VIRTUALBOX" != "true" ]; then
-        chr pacman -S intel-ucode --noconfirm
-    fi
     chr grub-install --target=i386-pc --recheck "$BOOT_DISK"
     chr grub-mkconfig -o /boot/grub/grub.cfg
 }
