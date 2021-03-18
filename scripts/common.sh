@@ -3,7 +3,7 @@
 # Library containing helper functions used during base installation.
 
 LOG_FILE="install.log"
-DEBUG=true
+DEBUG=false
 
 #---------------------------------------
 # Shortens calls to arch-chroot environment.

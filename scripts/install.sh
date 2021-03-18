@@ -10,7 +10,14 @@
 source common.sh
 
 function usage() {
-    echo "TODO: Put Usage Info Here"
+    echo "Arch-Maker Custom Build Scripts."
+    echo
+    echo "Syntax: $0 [-h] [CONFIG FILE]"
+    echo
+    echo "h     Print this help."
+    echo 
+    echo "CONFIG FILE - base name of configuration file in configs/"
+    echo "  if not supplied, will use default configuration"
 }
 
 #---------------------------------------
@@ -30,7 +37,7 @@ function load_config() {
             CUSTOMIZE='true'
             source "$CONF_FILE"
         else
-            echo "Configuration file $CONF_FILE cannot be found. Exiting"
+            echo "ERROR: Configuration file $CONF_FILE cannot be found. Exiting"
             usage
             exit 1    
         fi
@@ -165,6 +172,15 @@ function add_user() {
     fi
 }
 
+while getopts ":h" option; do
+    case $option in
+        h)  # Display help
+            usage
+            exit;;
+    esac
+done
+
+
 init_log 
 
 if [ $# == 1 ]; then
@@ -174,7 +190,7 @@ else
 fi
 
 
-setup_partitions
+#setup_partitions
 verify_network
 set_system_clock
 update_mirrorlist
