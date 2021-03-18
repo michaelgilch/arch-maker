@@ -18,6 +18,9 @@ echo "Checking build dependencies..."
 
 check_dependency archiso
 
+# for linting
+check_dependency shellcheck
+
 # for testing
 check_dependency qemu
 check_dependency edk2-ovmf
