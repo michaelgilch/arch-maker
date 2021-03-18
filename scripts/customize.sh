@@ -5,7 +5,7 @@
 source $1
 
 function install_pkgs() {
-    sudo pacman -Syu $(echo "$PACKAGES")
+    sudo pacman -Syu --noconfirm --needed $(echo "$PACKAGES")
 }
 
 function is_installed() {
@@ -41,6 +41,7 @@ function setup_aur_pkgs() {
         makepkg -si --noconfirm
     done
 }
+
 
 install_pkgs
 setup_aur_pkgs

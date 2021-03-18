@@ -92,7 +92,7 @@ function set_locale() {
 
 function enable_network() {
     echo "Enabling network..."
-    chr systemctl enable dhcpcd.service
+    #chr systemctl enable dhcpcd.service
 }
 
 function configure_bootloader() {
@@ -125,11 +125,11 @@ function add_user() {
         printf "\nAdding user %s...\n" "$PRIMARY_USER"
         chr useradd -m -G wheel -s /bin/bash "$PRIMARY_USER"
         set_password "$PRIMARY_USER" "$PRIMARY_USER_PW"
-        sed -i "/%wheel ALL=(ALL) ALL/s/^# //" "$TARGET"/etc/sudoers
+        sed -i "s/# %wheel ALL=(ALL) ALL/%wheel ALL=(ALL) ALL/" "$TARGET"/etc/sudoers
     fi
 }
 
-init_log
+init_log 
 
 if [ $# == 1 ]; then
     CONF_FILE="configs/${1,,}.conf"
@@ -152,7 +152,7 @@ pacstrap_system
 generate_fstab
 set_timezone
 set_locale
-enable_network
+#enable_network
 configure_bootloader
 set_hostname
 configure_initcpio
@@ -165,14 +165,18 @@ if [ "$CUSTOMIZE" == 'true' ]; then
 
     # Copy scripts
     mkdir -p /mnt/home/"$PRIMARY_USER"/.install_scripts/
+    #cp common.sh /mnt/home/"$PRIMARY_USER"/.install_scripts/
     cp customize.sh /mnt/home/"$PRIMARY_USER"/.install_scripts/
     cp -R configs /mnt/home/"$PRIMARY_USER"/.install_scripts/
 
     # Run customization script
-    chr /bin/bash -c "su $PRIMARY_USER -l -s -c \"./.install_scripts/customize.sh .install_scripts/$CONF_FILE\""
+    chr /bin/bash -c "su $PRIMARY_USER -l -c \"cd .install_scripts && ./customize.sh ./$CONF_FILE\""
 
     # Re-enable sudo password
     sed -i 's/^%wheel ALL=(ALL) NOPASSWD: ALL$/%wheel ALL=(ALL) ALL/' /mnt/etc/sudoers
 fi
+
+# Copying install log to installation
+cp install.log /mnt/home/"$PRIMARY_USER"/.install_scripts/
 
 printf "\nInstallation complete."

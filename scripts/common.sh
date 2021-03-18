@@ -1,25 +1,28 @@
 #!/bin/bash
 #
-# Library containing helper functions used throughout installation.
+# Library containing helper functions used during base installation.
 
 LOG_FILE="install.log"
-TARGET="/mnt"
 DEBUG=true
 
-#------------------------------------------------------------------------------
-# Shortens calls to chroot environment.
-#
+#---------------------------------------
+# Shortens calls to arch-chroot environment.
 # Globals:
 #   TARGET
 # Arguments:
 #   Command to execute in chroot environment
-#------------------------------------------------------------------------------
+#---------------------------------------
 function chr() {
     arch-chroot "$TARGET" "$@"
 }
 
 #---------------------------------------
 # Initializes Logging of Installation
+# Globals:
+#   LOG_FILE
+#   DEBUG
+# Outputs:
+#   STDERR, STDOUT, [commands] to log file
 #---------------------------------------
 function init_log() {
     exec > >(tee -a $LOG_FILE)
@@ -28,13 +31,4 @@ function init_log() {
     if [ "$DEBUG" == true ]; then
         set -o xtrace
     fi
-}
-
-#---------------------------------------
-# Checks if a package is installed
-# Arguments:
-#   Package to check
-#---------------------------------------
-function is_installed() {
-    pacman -Q $1 >/dev/null 2>&1
 }
