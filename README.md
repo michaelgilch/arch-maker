@@ -22,13 +22,13 @@ The Makefile has each step in the build process broken down for troubleshooting 
 
 ## Running an Install
 
-### default
+### Default Installation
 
 Upon booting into the Arch-Maker ISO, you simply need to run `./install.sh` to launch the installer. This will install `base linux linux-firmware` to `/dev/sda1`. The only additional packages that would potentially be installed is `intel-ucode` if the installation detects an Intel CPU and non-virtual environment. 
 
 This installation method will use the configuration located at `configs/default.conf`. You will be prompted for a minimal amount of information along the way (hostname, username, password) if it is missing from the configuration file. You can edit the configuration for your default installation if desired. Most likely, you would want to change `LOCALE` and `TIMEZONE`.
 
-### custom
+### Custom Installation
 
 Rather than the default installation, you can also run a customized installation by providing the configuration name as an argument to `./install.sh`. The following example will look for a configs/davinci.conf. I tend to name my configs based on the hostname of the installation.
 
