@@ -6,6 +6,8 @@
 # Guide found at https://wiki.archlinux.org/index.php/Installation_guide.
 # Following this script, customize.sh will be called to perform more fine-tuned
 # customizations, installation of aur packages, sdkman, dotfiles, etc.
+#
+# shellcheck disable=SC1090,SC1091
 
 source common.sh
 
@@ -64,11 +66,11 @@ function setup_partitions() {
     log_info "Mounting $ROOT_PARTITION to $TARGET"
     mount "$ROOT_PARTITION" "$TARGET"
 
-    for P in ${FORMAT_PARTITIONS[@]}; do
-        IFS='|' S=(${P}) 
-        PARTITION=${S[0]}
-        MOUNT_POINT=${S[1]}
-        FORMAT=${S[2]}
+    for entry in "${FORMAT_PARTITIONS[@]}"; do
+        IFS='|' item=("${entry}") 
+        PARTITION=${item[0]}
+        MOUNT_POINT=${item[1]}
+        FORMAT=${item[2]}
         
         log_info "Formatting $PARTITION as $FORMAT for $MOUNT_POINT"
         mkfs."$FORMAT" "$PARTITION"
@@ -78,10 +80,10 @@ function setup_partitions() {
         IFS=' '
     done
 
-    for P in ${MOUNT_PARTITIONS[@]}; do
-        IFS='|' S=(${P})
-        PARTITION=${S[0]}
-        MOUNT_POINT=${S[1]}
+    for entry in "${MOUNT_PARTITIONS[@]}"; do
+        IFS='|' item=("${entry}")
+        PARTITION=${item[0]}
+        MOUNT_POINT=${item[1]}
 
         mkdir -p "$MOUNT_POINT"
         log_info "Mounting $PARTITION to $MOUNT_POINT"
@@ -117,7 +119,7 @@ function update_mirrorlist() {
 
 function pacstrap_system() {
     log_subheader "Bootstrapping System with pacstrap"
-    if [ "$IS_INTEL_CPU" == "true" -a "$IS_VIRTUALBOX" != "true" ]; then
+    if [ "$IS_INTEL_CPU" == "true" ] && [ "$IS_VIRTUALBOX" != "true" ]; then
         log_info "Adding intel_ucode to package list for pacstrap"
         BASE_PKGS+=" intel-ucode"
     fi
@@ -128,7 +130,7 @@ function pacstrap_system() {
 function generate_fstab() {
     log_subheader "Generating fstab"
     genfstab -U -p "$TARGET" >> "$TARGET"/etc/fstab
-    log_info "fstab set to:$(echo && cat $TARGET/etc/fstab)"
+    log_info "fstab set to:$(echo && cat ${TARGET}/etc/fstab)"
 }
 
 function set_timezone() {
@@ -201,6 +203,8 @@ while getopts ":h" option; do
         h)  # Display help
             usage
             exit;;
+        *)  usage
+            exit;;
     esac
 done
 
@@ -212,7 +216,7 @@ log_info "Log File: $LOG_FILE"
 log_info "Debug: $DEBUG"
 
 if [ $# == 1 ]; then
-    load_config $1
+    load_config "$1"
 else
     load_config
 fi

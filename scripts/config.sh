@@ -9,6 +9,8 @@
 # 
 # An entry in a configuration file will will take precidence over a user
 # prompt and/or hardware probe, preventing the latter from occuring.
+#
+# shellcheck disable=SC1091
 
 source common.sh
 

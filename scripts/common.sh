@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Library containing helper functions used during base installation.
+# Library containing helper functions used during base installation and customization.
 
 set -e
 
@@ -35,44 +35,70 @@ function init_log() {
     fi
 }
 
+#---------------------------------------
+# Helper function for including a date/time stamp on all info, warning, and error logs
+# Outputs:
+#   STDOUT
+#---------------------------------------
 function log() {
     echo "$(date '+%F %T') $*"
 }
 
+#---------------------------------------
+# Outputs an info log message and exits
+# Globals:
+#   DEBUG
+#---------------------------------------
 function log_info() {
     local msg="[INFO] "
     if [ "$DEBUG" == "true" ]; then
         msg+="(${BASH_SOURCE[1]} - ${FUNCNAME[1]}:${BASH_LINENO[0]}) "
     fi
     msg+="$*"
-    log $msg
+    log "$msg"
 }
 
+#---------------------------------------
+# Outputs a warning log message
+# Globals:
+#   DEBUG
+#---------------------------------------
 function log_warn() {
     local msg="[WARNING] "
     if [ "$DEBUG" == "true" ]; then
         msg+="(${BASH_SOURCE[1]} - ${FUNCNAME[1]}:${BASH_LINENO[0]}) "
     fi
     msg+="$*"
-    log $msg
+    log "$msg"
 }
 
+#---------------------------------------
+# Outputs an error log message and exits
+# Globals:
+#   DEBUG
+#---------------------------------------
 function log_err() {
     local msg="[ERROR] "
     if [ "$DEBUG" == "true" ]; then
         msg+="(${BASH_SOURCE[1]} - ${FUNCNAME[1]}:${BASH_LINENO[0]}) "
     fi
     msg+="$*"
-    log $msg
+    log "$msg"
     exit 1
 }
 
+#---------------------------------------
+# Outputs a Heading for organized logging
+# Arguments:
+#   Header (descriptive section name)
+# Outputs:
+#   STDOUT
+#---------------------------------------
 function log_header() {
-    # make leading spaces for message
     local msg=""
     local len=${#1}
-    let start_position=(40-$len)/2
-    for (( i=0; i<$start_position; i++ )); do
+    local start_position=$(( (40-len) / 2 ))
+    for (( i=0; i<start_position; i++ )); do
         msg+=" "
     done
     msg+=$1
@@ -83,18 +109,17 @@ function log_header() {
 }
 
 #---------------------------------------
-# Outputs a sub-heading for logging
+# Outputs a sub-heading for organized logging
 # Arguments:
-#   Header (descriptive section name)
+#   SubHeader (descriptive section name)
 # Outputs:
 #   STDOUT
 #---------------------------------------
 function log_subheader() {
-    # make leading spaces for message
     local msg=""
     local len=${#1}
-    let start_position=(40-$len)/2
-    for (( i=0; i<$start_position; i++ )); do
+    local start_position=$(( (40-len) / 2 ))
+    for (( i=0; i<start_position; i++ )); do
         msg+=" "
     done
     msg+=$1
