@@ -98,15 +98,19 @@ function copy_private_configs() {
 }
 
 function get_dotfiles() {
-    log_subheader "Dotfiles"
-    cd ~
-    log_info "Cloning dotfiles repo from $DOTFILES_REPO"
-    git clone "$DOTFILES_REPO"
-    cd dotfiles
-    log_info "Running dotfiles setup.sh"
-    bash ./setup.sh
-    cd ~
+    if [ "$DOTFILES_REPO" != "" ]; then
+        log_subheader "Dotfiles"
+        cd ~
+        log_info "Cloning dotfiles repo from $DOTFILES_REPO"
+        git clone "$DOTFILES_REPO"
+        cd dotfiles
+        log_info "Running dotfiles setup.sh"
+        bash ./setup.sh
+        cd ~
+    fi
 }
+
+
 
 log_header "Customization"
 
