@@ -97,6 +97,17 @@ function copy_private_configs() {
     fi
 }
 
+function get_dotfiles() {
+    log_subheader "Dotfiles"
+    cd ~
+    log_info "Cloning dotfiles repo from $DOTFILES_REPO"
+    git clone "$DOTFILES_REPO"
+    cd dotfiles
+    log_info "Running dotfiles setup.sh"
+    bash ./setup.sh
+    cd ~
+}
+
 log_header "Customization"
 
 install_pkgs
@@ -106,5 +117,6 @@ install_aur_pkgs
 customize_grub_theme
 setup_desktop_environment
 copy_private_configs
+get_dotfiles
 
 log_subheader "Customizations Complete!"
