@@ -156,6 +156,31 @@ function get_is_nvidia_graphics() {
     echo "-> NVIDIA Graphics set to '$IS_NVIDIA_GRAPHICS'"
 }
 
+function get_secret_usb() {
+    if [ "$USE_PRIVATE_CONFIGS" == "true" ]; then
+        echo "Insert USB with Private Configs and press Enter"
+
+        local try_again="y"
+        local found="false"
+        until [ "$try_again" == "n" ]; do
+            local private_usb=$(blkid | grep "LABEL=\"PRIVATE\"" | cut -d":" -f1)
+            if [ -z "$private_usb" ]; then
+                echo "ERROR: Cannot find Private USB Device. Retry (Y|n): "
+                read -r try_again
+            else
+                mkdir tmp
+                echo "Mounting $private_usb to tmp"
+                mount "$private_usb" tmp
+                try_again="n"
+                found="true"
+            fi
+        done
+        if [ "$found" == "false" ]; then
+            USE_PRIVATE_CONFIGS="false"
+        fi
+    fi
+}
+
 echo "Collecting configuration information..."
 
 get_hostname
@@ -167,3 +192,4 @@ get_primary_user_password
 get_is_virtualbox
 get_is_intel_cpu
 get_is_nvidia_graphics
+get_secret_usb

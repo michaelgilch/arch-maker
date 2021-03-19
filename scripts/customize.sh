@@ -15,8 +15,8 @@ function install_pkgs() {
 function setup_network() {
     is_installed networkmanager && {
         echo "Disabling dhcpcd and enabling NetworkManager service"
-        systemctl disable dhcpcd
-        systemctl enable NetworkManager.service
+        sudo systemctl disable dhcpcd
+        sudo systemctl enable NetworkManager.service
     }
 }
 
@@ -42,6 +42,7 @@ function install_aur_pkgs() {
         cd "$A"
         makepkg -si --noconfirm
     done
+    cd ~/.install_scripts
 }
 
 function customize_grub_theme() {
@@ -68,7 +69,17 @@ function setup_desktop_environment() {
     }
 }
 
-
+function copy_private_configs() {
+    if [ "$USE_PRIVATE_CONFIGS" == "true" ]; then
+        for P in ${PRIVATE_CONFIGS[@]}; do
+            IFS='|' F=(${P})
+            local src_loc=${F[0]}
+            local dest_loc=${F[1]}
+            cp -Rp private/"$src_loc" ~/"$dest_loc"
+        done
+        IFS=' '
+    fi
+}
 
 install_pkgs
 setup_network
@@ -76,3 +87,4 @@ obtain_keys_for_aur
 install_aur_pkgs
 customize_grub_theme
 setup_desktop_environment
+copy_private_configs

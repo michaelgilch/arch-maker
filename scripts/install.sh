@@ -190,7 +190,7 @@ else
 fi
 
 
-#setup_partitions
+setup_partitions
 verify_network
 set_system_clock
 update_mirrorlist
@@ -198,7 +198,7 @@ pacstrap_system
 generate_fstab
 set_timezone
 set_locale
-#enable_network
+enable_network
 configure_bootloader
 set_hostname
 configure_initcpio
@@ -214,6 +214,11 @@ if [ "$CUSTOMIZE" == 'true' ]; then
     #cp common.sh /mnt/home/"$PRIMARY_USER"/.install_scripts/
     cp customize.sh /mnt/home/"$PRIMARY_USER"/.install_scripts/
     cp -R configs /mnt/home/"$PRIMARY_USER"/.install_scripts/
+
+    if [ "$USE_PRIVATE_CONFIGS" == "true" ]; then
+        mkdir /mnt/home/"$PRIMARY_USER"/.install_scripts/private
+        cp -Rp tmp/* /mnt/home/"$PRIMARY_USER"/.install_scripts/private/
+    fi
 
     # Run customization script
     chr /bin/bash -c "su $PRIMARY_USER -l -c \"cd .install_scripts && ./customize.sh ./$CONF_FILE\""
