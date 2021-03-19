@@ -10,6 +10,8 @@
 # An entry in a configuration file will will take precidence over a user
 # prompt and/or hardware probe, preventing the latter from occuring.
 
+source common.sh
+
 #---------------------------------------
 # Prompts user for locale if it does not exist in config file.
 # Globals:
@@ -17,9 +19,9 @@
 #---------------------------------------
 function get_locale() {
     if [ "$LOCALE" == "" ]; then
-        read -r -p "Locale (eg: 'en_US.UTF-8'): " LOCALE
+        read -r -p "-> Locale (eg: 'en_US.UTF-8'): " LOCALE
     fi
-    echo "-> Locale set to '$LOCALE'"
+    log_info "Locale set to '$LOCALE'"
 }
 
 #---------------------------------------
@@ -29,9 +31,9 @@ function get_locale() {
 #---------------------------------------
 function get_timezone() {
     if [ "$TIMEZONE" == "" ]; then
-        read -r -p "Timezone (eg: 'America/New_York'): " TIMEZONE
+        read -r -p "-> Timezone (eg: 'America/New_York'): " TIMEZONE
     fi
-    echo "-> Timezone set to '$TIMEZONE'"
+    log_info "Timezone set to '$TIMEZONE'"
 }
 
 #---------------------------------------
@@ -41,9 +43,9 @@ function get_timezone() {
 #---------------------------------------
 function get_hostname() {
     if [ "$HOST_NAME" == "" ]; then
-        read -r -p "Hostname: " HOST_NAME
+        read -r -p "-> Hostname: " HOST_NAME
     fi
-    echo "-> Hostname set to '$HOST_NAME'"
+    log_info "Hostname set to '$HOST_NAME'"
 }
 
 #---------------------------------------
@@ -59,17 +61,17 @@ function get_password() {
     local user=$1
     local match=false
     while [ "$match" == false ]; do
-        read -r -p "Enter password for $user: " -s PW_1
+        read -r -p "-> Enter password for $user: " -s PW_1
         echo
-        read -r -p "Enter password for $user, again: " -s PW_2
+        read -r -p "-> Enter password for $user, again: " -s PW_2
         echo
         if [[ "$PW_1" == "$PW_2" ]]; then
             match=true
         else
-            echo "ERROR: Passwords do not match. Please try again."
+            log_warn "Passwords do not match. Please try again."
         fi
     done
-    echo "-> $user Password set."
+    log_info "Password for $user has been set."
 }
 
 #---------------------------------------
@@ -91,9 +93,9 @@ function get_root_password() {
 #---------------------------------------
 function get_primary_user() {
     if [ "$PRIMARY_USER" == "" ]; then
-        read -r -p "Primary User Name: " PRIMARY_USER
+        read -r -p "-> Primary User Name: " PRIMARY_USER
     fi
-    echo "-> Primary User set to '$PRIMARY_USER'."
+    log_info "Primary User set to '$PRIMARY_USER'."
 }
 
 #---------------------------------------
@@ -123,7 +125,7 @@ function get_is_virtualbox() {
             IS_VIRTUALBOX="true"
         fi
     fi
-    echo "-> Virtualbox Install set to '$IS_VIRTUALBOX'"
+    log_info "Virtualbox Install set to '$IS_VIRTUALBOX'"
 }
 
 #---------------------------------------
@@ -138,7 +140,7 @@ function get_is_intel_cpu() {
             IS_INTEL_CPU="true"
         fi
     fi    
-    echo "-> Intel CPU set to '$IS_INTEL_CPU'"
+    log_info "Intel CPU set to '$IS_INTEL_CPU'"
 }
 
 #---------------------------------------
@@ -153,23 +155,28 @@ function get_is_nvidia_graphics() {
             IS_NVIDIA_GRAPHICS="true"
         fi
     fi    
-    echo "-> NVIDIA Graphics set to '$IS_NVIDIA_GRAPHICS'"
+    log_info "NVIDIA Graphics set to '$IS_NVIDIA_GRAPHICS'"
 }
 
+#---------------------------------------
+# Mounts private configs USB
+# Globals:
+#   USE_PRIVATE_CONFIGS
+#---------------------------------------
 function get_secret_usb() {
     if [ "$USE_PRIVATE_CONFIGS" == "true" ]; then
-        echo "Insert USB with Private Configs and press Enter"
-
+        echo "-> Insert USB with Private Configs"
+        read -p "-> Press any key to continue..."
         local try_again="y"
         local found="false"
         until [ "$try_again" == "n" ]; do
             local private_usb=$(blkid | grep "LABEL=\"PRIVATE\"" | cut -d":" -f1)
             if [ -z "$private_usb" ]; then
-                echo "ERROR: Cannot find Private USB Device. Retry (Y|n): "
+                log_warn "Cannot find Private USB Device. Retry (Y|n): "
                 read -r try_again
             else
                 mkdir tmp
-                echo "Mounting $private_usb to tmp"
+                log_info "Mounting $private_usb to tmp"
                 mount "$private_usb" tmp
                 try_again="n"
                 found="true"
@@ -177,11 +184,12 @@ function get_secret_usb() {
         done
         if [ "$found" == "false" ]; then
             USE_PRIVATE_CONFIGS="false"
+            log_warn "Not using private config USB."
         fi
     fi
 }
 
-echo "Collecting configuration information..."
+log_header "Configuration"
 
 get_hostname
 get_locale
