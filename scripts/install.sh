@@ -61,6 +61,21 @@ function load_config() {
 function setup_partitions() {
     log_subheader "Setup Partitions"
 
+    log_info "Unmounting any previously mounted partitions"
+    for entry in "${FORMAT_PARTITIONS[@]}"; do
+        IFS='|' item=(${entry})
+        PARTITION=${item[0]}
+        umount "$PARTITION"
+    done
+
+    for entry in "${MOUNT_PARTITIONS[@]}"; do
+        IFS='|' item=(${entry})
+        PARTITION=${item[0]}
+        umount "$PARTITION"
+    done
+
+    umount "$ROOT_PARTITION"
+
     log_info "Formatting Root Partition $ROOT_PARTITION"
     mkfs.ext4 "$ROOT_PARTITION"
     log_info "Mounting $ROOT_PARTITION to $TARGET"
