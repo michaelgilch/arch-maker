@@ -67,7 +67,7 @@ function setup_partitions() {
     mount "$ROOT_PARTITION" "$TARGET"
 
     for entry in "${FORMAT_PARTITIONS[@]}"; do
-        IFS='|' item=("${entry}") 
+        IFS='|' item=(${entry}) 
         PARTITION=${item[0]}
         MOUNT_POINT=${item[1]}
         FORMAT=${item[2]}
@@ -81,7 +81,7 @@ function setup_partitions() {
     done
 
     for entry in "${MOUNT_PARTITIONS[@]}"; do
-        IFS='|' item=("${entry}")
+        IFS='|' item=(${entry})
         PARTITION=${item[0]}
         MOUNT_POINT=${item[1]}
 
