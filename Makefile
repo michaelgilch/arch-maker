@@ -4,7 +4,8 @@ all: clean depends profile installer-scripts installer-packages permissions iso
 
 lint:
 	shellcheck -s bash $(wildcard ./*.sh) \
-			$(wildcard scripts/*.sh)
+			$(wildcard installer/*.sh) \
+			$(wildcard installer/lib/*.sh) 
 
 clean:
 	sudo ./clean.sh
