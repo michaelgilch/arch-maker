@@ -10,6 +10,8 @@
 # An entry in a configuration file will will take precidence over a user
 # prompt and/or hardware probe, preventing the latter from occuring.
 #
+# Shellcheck should not follow sourced files.
+# They will be linted individually.
 # shellcheck disable=SC1091
 
 source common.sh
@@ -23,7 +25,10 @@ function get_locale() {
     if [ "$LOCALE" == "" ]; then
         read -r -p "-> Locale (eg: 'en_US.UTF-8'): " LOCALE
     fi
-    log_info "Locale set to '$LOCALE'"
+
+    # TODO: Not sure why $LOCALE is being detected as an array by shellcheck. 
+    # shellcheck disable=SC2128
+    log_info "Locale set to: $LOCALE"
 }
 
 #---------------------------------------
@@ -35,7 +40,10 @@ function get_timezone() {
     if [ "$TIMEZONE" == "" ]; then
         read -r -p "-> Timezone (eg: 'America/New_York'): " TIMEZONE
     fi
-    log_info "Timezone set to '$TIMEZONE'"
+
+    # TODO: Not sure why $TIMEZONE is being detected as an array by shellcheck. 
+    # shellcheck disable=SC2128
+    log_info "Timezone set to: $TIMEZONE"
 }
 
 #---------------------------------------
@@ -47,7 +55,10 @@ function get_hostname() {
     if [ "$HOST_NAME" == "" ]; then
         read -r -p "-> Hostname: " HOST_NAME
     fi
-    log_info "Hostname set to '$HOST_NAME'"
+
+    # TODO: Not sure why $HOST_NAME is being detected as an array by shellcheck. 
+    # shellcheck disable=SC2128
+    log_info "Hostname set to: $HOST_NAME"
 }
 
 #---------------------------------------
@@ -97,7 +108,10 @@ function get_primary_user() {
     if [ "$PRIMARY_USER" == "" ]; then
         read -r -p "-> Primary User Name: " PRIMARY_USER
     fi
-    log_info "Primary User set to '$PRIMARY_USER'."
+
+    # TODO: Not sure why $PRIMARY_USER is being detected as an array by shellcheck. 
+    # shellcheck disable=SC2128
+    log_info "Primary User set to: $PRIMARY_USER"
 }
 
 #---------------------------------------
@@ -107,8 +121,14 @@ function get_primary_user() {
 #   PRIMARY_USER_PW
 #---------------------------------------
 function get_primary_user_password() {
+
+    # TODO: Not sure why $PRIMARY_USER is being detected as an array by shellcheck. 
+    # shellcheck disable=SC2128
     if [ "$PRIMARY_USER" != "" ]; then
         if [ "$PRIMARY_USER_PW" == "" ]; then
+
+            # TODO: Not sure why $PRIMARY_USER is being detected as an array by shellcheck. 
+            # shellcheck disable=SC2128
             get_password "$PRIMARY_USER"
             PRIMARY_USER_PW="$PW_1"
         fi
@@ -127,7 +147,7 @@ function get_is_virtualbox() {
             IS_VIRTUALBOX="true"
         fi
     fi
-    log_info "Virtualbox Install set to '$IS_VIRTUALBOX'"
+    log_info "Virtualbox Install set to: $IS_VIRTUALBOX"
 }
 
 #---------------------------------------
@@ -142,7 +162,7 @@ function get_is_intel_cpu() {
             IS_INTEL_CPU="true"
         fi
     fi    
-    log_info "Intel CPU set to '$IS_INTEL_CPU'"
+    log_info "Intel CPU set to: $IS_INTEL_CPU"
 }
 
 #---------------------------------------
@@ -157,7 +177,7 @@ function get_is_nvidia_graphics() {
             IS_NVIDIA_GRAPHICS="true"
         fi
     fi    
-    log_info "NVIDIA Graphics set to '$IS_NVIDIA_GRAPHICS'"
+    log_info "NVIDIA Graphics set to: $IS_NVIDIA_GRAPHICS"
 }
 
 #---------------------------------------
@@ -172,7 +192,8 @@ function get_secret_usb() {
         local try_again="y"
         local found="false"
         until [ "$try_again" == "n" ]; do
-            local private_usb=$(blkid | grep "LABEL=\"PRIVATE\"" | cut -d":" -f1)
+            local private_usb
+            private_usb=$(blkid | grep "LABEL=\"PRIVATE\"" | cut -d":" -f1)
             if [ -z "$private_usb" ]; then
                 log_warn "Cannot find Private USB Device. Retry (Y|n): "
                 read -r try_again

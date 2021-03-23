@@ -7,6 +7,8 @@
 # Following this script, customize.sh will be called to perform more fine-tuned
 # customizations, installation of aur packages, sdkman, dotfiles, etc.
 #
+# Shellcheck should not follow sourced files.
+# They will be linted individually.
 # shellcheck disable=SC1090,SC1091
 
 source common.sh
@@ -63,13 +65,13 @@ function setup_partitions() {
 
     log_info "Unmounting any previously mounted partitions"
     for entry in "${FORMAT_PARTITIONS[@]}"; do
-        IFS='|' item=(${entry})
+        IFS='|' read -ra item <<< "$entry"
         PARTITION=${item[0]}
         umount "$PARTITION"
     done
 
     for entry in "${MOUNT_PARTITIONS[@]}"; do
-        IFS='|' item=(${entry})
+        IFS='|' read -ra item <<< "$entry"
         PARTITION=${item[0]}
         umount "$PARTITION"
     done
@@ -82,7 +84,7 @@ function setup_partitions() {
     mount "$ROOT_PARTITION" "$TARGET"
 
     for entry in "${FORMAT_PARTITIONS[@]}"; do
-        IFS='|' item=(${entry}) 
+        IFS='|' read -ra item <<< "$entry"
         PARTITION=${item[0]}
         MOUNT_POINT=${item[1]}
         FORMAT=${item[2]}
@@ -96,7 +98,7 @@ function setup_partitions() {
     done
 
     for entry in "${MOUNT_PARTITIONS[@]}"; do
-        IFS='|' item=(${entry})
+        IFS='|' read -ra item <<< "$entry"
         PARTITION=${item[0]}
         MOUNT_POINT=${item[1]}
 
@@ -139,12 +141,21 @@ function pacstrap_system() {
         BASE_PKGS+=" intel-ucode"
     fi
     log_info "Installing packages..." 
-    pacstrap "$TARGET" $(echo "$BASE_PKGS")
+
+    # The expansion of $BASE_PKGS should not be quoted. Pacstrap needs
+    # word-splitting in order to interpret each invdividual package
+    # rather than the entire string as a single package.
+    # shellcheck disable=SC2086
+    pacstrap "$TARGET" $BASE_PKGS
 }
 
 function generate_fstab() {
     log_subheader "Generating fstab"
     genfstab -U -p "$TARGET" >> "$TARGET"/etc/fstab
+
+    # ${TARGET} is already quoted with the full command.
+    # TODO: Figure out a better way to handle
+    # shellcheck disable=SC2086
     log_info "fstab set to:$(echo && cat ${TARGET}/etc/fstab)"
 }
 
