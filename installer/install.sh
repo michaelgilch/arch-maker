@@ -11,7 +11,7 @@
 # They will be linted individually.
 # shellcheck disable=SC1090,SC1091
 
-source common.sh
+source lib/common.sh
 
 function usage() {
     echo "Arch-Maker Custom Build Scripts."
@@ -34,7 +34,7 @@ function usage() {
 #---------------------------------------
 function load_config() {
     if [ $# == 1 ]; then
-        CONF_FILE="configs/${1,,}.conf"
+        CONF_FILE="profiles/${1,,}.conf"
 
         if [ -f "$CONF_FILE" ]; then
             CUSTOMIZE='true'
@@ -43,13 +43,13 @@ function load_config() {
             log_err "Configuration file $CONF_FILE cannot be found. Aborting..."
         fi
     else
-        CONF_FILE="configs/default.conf"
+        CONF_FILE="profiles/default.conf"
         CUSTOMIZE='false'
-        source "configs/default.conf"
+        source "profiles/default.conf"
     fi
 
     log_info "Config: $CONF_FILE"
-    source config.sh
+    source lib/config.sh
 }
 
 #---------------------------------------

@@ -6,7 +6,7 @@
 # They will be linted individually.
 # shellcheck disable=SC1090,SC1091
 
-source common.sh
+source lib/common.sh
 
 CONFIG_PROFILE="$1"
 source "$CONFIG_PROFILE"
