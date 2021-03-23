@@ -6,7 +6,7 @@
 # They will be linted individually.
 # shellcheck disable=SC1090,SC1091
 
-source lib/common.sh
+source common.sh
 
 CONFIG_PROFILE="$1"
 source "$CONFIG_PROFILE"
@@ -16,16 +16,6 @@ function is_installed() {
     pacman -Q "$package_name" >/dev/null 2>&1
 }
 
-function install_pkgs() {
-    log_subheader "Installing Packages"
-
-    # The expansion of $PACKAGES should not be quoted. Pacman needs
-    # word-splitting in order to interpret each invdividual package
-    # rather than the entire string as a single package.
-    # shellcheck disable=SC2086
-    sudo pacman -Syu --noconfirm --needed $PACKAGES
-}
-
 function setup_network() {
     log_subheader "Network Setup"
     is_installed networkmanager && {
@@ -33,35 +23,6 @@ function setup_network() {
         sudo systemctl disable dhcpcd
         sudo systemctl enable NetworkManager.service
     }
-}
-
-function obtain_keys_for_aur() {
-    log_subheader "Obtaining Keys for AUR Packages"
-    if [[ "$AUR_PKGS" == *"dropbox"* ]]; then
-        log_info "Fetching Dropbox Key"
-        sudo  wget https://linux.dropbox.com/fedora/rpm-public-key.asc
-        gpg --import rpm-public-key.asc    
-    fi
-
-    # Spotify AUR
-    if [[ "$AUR_PKGS" == *"spotify"* ]]; then
-        log_info "Fetching Spotify Key"
-        gpg --recv-key D1742AD60D811D58
-    fi
-}
-
-function install_aur_pkgs() {
-    log_subheader "Installing AUR Packages"
-    mkdir -p ~/.aur
-
-    for A in "${AUR_PKGS[@]}"; do
-        log_info "Installing $A"
-        cd ~/.aur || exit
-        git clone https://aur.archlinux.org/"$A".git
-        cd "$A" || exit
-        makepkg -si --noconfirm
-    done
-    cd ~/.install_scripts || exit
 }
 
 function customize_grub_theme() {
@@ -122,14 +83,12 @@ function get_dotfiles() {
     fi
 }
 
+log_header "Post Base-Install Customization"
 
+bash post-install/packages.sh "$CONFIG_PROFILE"
 
-log_header "Customization"
-
-install_pkgs
 setup_network
-obtain_keys_for_aur
-install_aur_pkgs
+
 customize_grub_theme
 setup_desktop_environment
 copy_private_configs

@@ -14,7 +14,7 @@
 # They will be linted individually.
 # shellcheck disable=SC1091
 
-source common.sh
+source lib/common.sh
 
 #---------------------------------------
 # Prompts user for locale if it does not exist in config file.
