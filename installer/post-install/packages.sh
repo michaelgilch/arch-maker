@@ -1,9 +1,15 @@
 #!/bin/bash
 #
 # Post-Base-Install script to add additional packages
+#
+# Shellcheck should not follow sourced files.
+# They will be linted individually.
+# shellcheck disable=SC1090,SC1091
 
 source ~/.install_scripts/common.sh
-source ~/.install_scripts/"$1"
+
+CONFIG_PROFILE="$1"
+source ~/.install_scripts/"$CONFIG_PROFILE"
 
 function install_pkgs() {
     log_subheader "Installing Packages"
@@ -48,8 +54,14 @@ function install_aur_pkgs() {
     cd ~/.install_scripts || exit
 }
 
+function install_sublime_text() {
+    log_subheader "Installing Sublime-Text-3"
+
+    bash post-install/sublime.sh
+}
+
 function main() {
-    log_header "Installing Additional Packages"    
+    log_header "Additional Packages"    
 
     if [ "$PACKAGES" != "" ]; then
         install_pkgs
@@ -59,6 +71,8 @@ function main() {
         aur_keys
         install_aur_pkgs
     fi
+
+    install_sublime_text
 }
 
 main
