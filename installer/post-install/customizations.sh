@@ -14,7 +14,7 @@ function private_configs() {
     for entry in "${PRIVATE_CONFIGS[@]}"; do
         IFS='|' read -ra item <<< "$entry"
         local src_loc="private/${item[0]}"
-        local dest_loc="~/${item[1]}"
+        local dest_loc="$HOME"/"${item[1]}"
         log_info "Copying $src_loc to $dest_loc"
         cp -Rp "$src_loc" "$dest_loc"
     done
@@ -89,13 +89,9 @@ function desktop() {
 function main() {
     log_header "Application Customizations"
 
-    if [ "$USE_PRIVATE_CONFIGS" == true ]; then
-        private_configs
-    fi
-
-    if [ "$DOTFILES_REPO" != "" ]; then
-        dotfiles
-    fi
+    "$USE_PRIVATE_CONFIGS" && private_configs
+    
+    [ "$DOTFILES_REPO" != "" ] && dotfiles
 
     home_symlinks
 
