@@ -63,21 +63,26 @@ function load_config() {
 function setup_partitions() {
     log_subheader "Setup Partitions"
 
-    # TODO: Make this conditional. Only works when partitions are mounted currently
-    # log_info "Unmounting any previously mounted partitions"
-    # for entry in "${FORMAT_PARTITIONS[@]}"; do
-    #     IFS='|' read -ra item <<< "$entry"
-    #     PARTITION=${item[0]}
-    #     umount "$PARTITION"
-    # done
+    log_info "Unmounting any previously mounted partitions"
+    for entry in "${FORMAT_PARTITIONS[@]}"; do
+        IFS='|' read -ra item <<< "$entry"
+        PARTITION=${item[0]}
+        if grep -qs "$PARTITION" /proc/mounts; then
+            umount "$PARTITION"
+        fi
+    done
 
-    # for entry in "${MOUNT_PARTITIONS[@]}"; do
-    #     IFS='|' read -ra item <<< "$entry"
-    #     PARTITION=${item[0]}
-    #     umount "$PARTITION"
-    # done
+    for entry in "${MOUNT_PARTITIONS[@]}"; do
+        IFS='|' read -ra item <<< "$entry"
+        PARTITION=${item[0]}
+        if grep -qs "$PARTITION" /proc/mounts; then
+            umount "$PARTITION"
+        fi
+    done
 
-    # umount "$ROOT_PARTITION"
+    if grep -qs "$ROOT_PARTITION" /proc/mounts; then
+        umount "$ROOT_PARTITION"
+    fi
 
     log_info "Formatting Root Partition $ROOT_PARTITION"
     mkfs.ext4 "$ROOT_PARTITION"
@@ -236,7 +241,7 @@ while getopts ":h" option; do
 done
 
 
-init_log #"$INSTALL_LOG_FILE"
+init_log
 
 log_header "Starting Arch-Maker Custom Installer"
 log_info "Log File: $LOG_FILE"
