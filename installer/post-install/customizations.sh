@@ -66,6 +66,7 @@ function grub() {
 
 function desktop() {
     log_subheader "Configuring Desktop"
+    
     # LXDM
     is_installed lxdm && {
         log_info "Enabling lxdm service"
