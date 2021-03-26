@@ -37,14 +37,14 @@ function load_config() {
         CONF_FILE="profiles/${1,,}.conf"
 
         if [ -f "$CONF_FILE" ]; then
-            CUSTOMIZE='true'
+            CUSTOMIZE=true
             source "$CONF_FILE"
         else
             log_err "Configuration file $CONF_FILE cannot be found. Aborting..."
         fi
     else
         CONF_FILE="profiles/default.conf"
-        CUSTOMIZE='false'
+        CUSTOMIZE=false
         source "profiles/default.conf"
     fi
 
@@ -144,7 +144,11 @@ function pacstrap_system() {
     log_subheader "Bootstrapping System with pacstrap"
     if [ "$IS_INTEL_CPU" == "true" ] && [ "$IS_VIRTUALBOX" != "true" ]; then
         log_info "Adding intel_ucode to package list for pacstrap"
-        BASE_PKGS+=" intel-ucode"
+        BASE_PKGS+="$BASE_CPU_INTEL"
+    fi
+    if [ "$IS_GRAPHICS_NVIDIA" ]; then 
+        log_info "Adding nvidia graphcis drivers to package list for pacstrap"
+        BASE_PKGS+="$BASE_GRAPHICS_NVIDIA"
     fi
     log_info "Installing packages..." 
 
@@ -240,7 +244,6 @@ while getopts ":h" option; do
     esac
 done
 
-
 init_log
 
 log_header "Starting Arch-Maker Custom Installer"
@@ -272,7 +275,7 @@ log_subheader "Users and Passwords"
 set_root_password
 add_user
 
-if [ "$CUSTOMIZE" == 'true' ]; then
+if [ "$CUSTOMIZE" ]; then
 
     log_subheader "Configure Customization"
 
@@ -309,5 +312,8 @@ fi
 # Copying install log to installation
 log_info "Copying installation log ($LOG_FILE) to /home/$PRIMARY_USER/.install_scripts/"
 log_header "Installation complete."
-cp install.log /mnt/home/"$PRIMARY_USER"/.install_scripts/
+
+if [ "$CUSTOMIZE" ]; then
+    cp install.log /mnt/home/"$PRIMARY_USER"/.install_scripts/
+fi
 
