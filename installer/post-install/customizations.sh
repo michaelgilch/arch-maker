@@ -66,7 +66,7 @@ function grub() {
 
 function desktop() {
     log_subheader "Configuring Desktop"
-    
+
     # LXDM
     is_installed lxdm && {
         log_info "Enabling lxdm service"
@@ -87,6 +87,19 @@ function desktop() {
     }    
 }
 
+function custom_conky() {
+    log_subheader "Setting up Conky"
+
+    is_installed conky && is_installed ruby && {
+        log_info "Cloning custom conky repository"
+
+        git clone git@github.com:michaelgilch/conky.git .conky
+        cd .conky || exit
+
+        bash setup.sh
+    }
+}
+
 function main() {
     log_header "Application Customizations"
 
@@ -99,6 +112,8 @@ function main() {
     network
     grub
     desktop
+
+    custom_conky
 }
 
 main
