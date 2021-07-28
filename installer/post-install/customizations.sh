@@ -100,6 +100,12 @@ function custom_conky() {
     }
 }
 
+function services() {
+    systemctl enable reflector.service
+    systemctl enable reflector.timer
+    // TODO customize reflector service /etc/xdg/reflector/reflector.conf
+    // country us
+
 function main() {
     log_header "Application Customizations"
 
@@ -109,6 +115,7 @@ function main() {
 
     home_symlinks
 
+    services
     network
     grub
     desktop
