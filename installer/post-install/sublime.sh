@@ -9,7 +9,7 @@ sudo pacman-key --lsign-key 8A8F901A
 rm sublimehq-pub.gpg
 
 echo -e "\n[sublime-text]\nServer = https://download.sublimetext.com/arch/stable/x86_64" | sudo tee -a /etc/pacman.conf
-sudo pacman -Sy --noconfirm sublime-text
+sudo pacman -Sy --noconfirm sublime-text sublime-merge
 
 # See `somewhere else` for License and Dotfiles
 mkdir -p ~/.config/sublime-text-3/Local
