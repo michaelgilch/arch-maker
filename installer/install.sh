@@ -97,9 +97,9 @@ function setup_partitions() {
         
         log_info "Formatting $PARTITION as $FORMAT for $MOUNT_POINT"
         mkfs."$FORMAT" "$PARTITION"
-        mkdir -p "$MOUNT_POINT"
-        log_info "Mounting $PARTITION to $MOUNT_POINT"
-        mount "$PARTITION" "$MOUNT_POINT"
+        mkdir -p "$TARGET""$MOUNT_POINT"
+        log_info "Mounting $PARTITION to $TARGET$MOUNT_POINT"
+        mount "$PARTITION" "$TARGET""$MOUNT_POINT"
         IFS=' '
     done
 
@@ -108,9 +108,9 @@ function setup_partitions() {
         PARTITION=${item[0]}
         MOUNT_POINT=${item[1]}
 
-        mkdir -p "$MOUNT_POINT"
-        log_info "Mounting $PARTITION to $MOUNT_POINT"
-        mount "$PARTITION" "$MOUNT_POINT"
+        mkdir -p "$TARGET""$MOUNT_POINT"
+        log_info "Mounting $PARTITION to $TARGET$MOUNT_POINT"
+        mount "$PARTITION" "$TARGET""$MOUNT_POINT"
         IFS=' '
     done
 }
@@ -295,7 +295,7 @@ if [ "$CUSTOMIZE" ]; then
     if [ "$USE_PRIVATE_CONFIGS" == "true" ]; then
         log_info "Configuring use of Private USB Configurations"
         mkdir /mnt/home/"$PRIMARY_USER"/.install_scripts/private
-        cp -Rp tmp/* /mnt/home/"$PRIMARY_USER"/.install_scripts/private/
+        cp -Rp /root/tmp/* /mnt/home/"$PRIMARY_USER"/.install_scripts/private/
     fi
 
     chr chown -R "$PRIMARY_USER":"$PRIMARY_USER" /home/"$PRIMARY_USER"/.install_scripts
